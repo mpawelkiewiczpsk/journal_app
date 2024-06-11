@@ -1,7 +1,8 @@
 import React from 'react';
-import { Layout, Menu, Avatar, Dropdown, theme } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, theme, Button } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { Outlet, Link  } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { logoutFromSystem } from '../api';
 
 const { Header, Content } = Layout;
 
@@ -16,8 +17,23 @@ const items = [
     }
 ]
 
-
 const App: React.FC = () => {
+
+    const navigate = useNavigate();
+
+    const logout = () => {
+
+        const refreshToken = localStorage.getItem('refreshToken')
+
+        logoutFromSystem(refreshToken).then(() => {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            navigate("/login");
+        })
+
+    }
+
+
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
@@ -39,11 +55,11 @@ const App: React.FC = () => {
                         minHeight: '300px',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start'
                     }}>
                         <Link style={{ width: '100%', padding: 25, background: 'red', color: '#fff' }} to={`profile`}>My profile</Link>
-                        <Link style={{ width: '100%', padding: 25, background: 'green', color: '#fff' }} to={`login`}>Logout</Link>
+                        <Button onClick={logout}>Logout</Button>
                     </div>
                 )}>
                     <Avatar size={40} icon={<UserOutlined />} />

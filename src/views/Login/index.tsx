@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input, Card } from 'antd';
+import { Button, Checkbox, Form, Input, Card, message } from 'antd';
 import { useNavigate } from "react-router-dom";
 import { login } from '../../api';
 
@@ -11,18 +11,22 @@ type FieldType = {
 };
 
 const Login: React.FC = () => {
+    const [messageApi, contextHolder] = message.useMessage();
 
     const navigate = useNavigate();
 
-    const onFinish: FormProps<FieldType>['onFinish'] = () => {
+    const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
 
-        login().then(data => {
-            localStorage.setItem("token", data.token);
+        login(values).then(data => {
+            localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
-
+            navigate('/')
+        }).catch(() => {
+            messageApi.open({
+                type: 'error',
+                content: 'Incorrect login details',
+            });
         })
-
-        navigate('/')
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
@@ -32,6 +36,7 @@ const Login: React.FC = () => {
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            {contextHolder}
             <Card style={{ width: 500 }}>
                 <Form
                     name="basic"
